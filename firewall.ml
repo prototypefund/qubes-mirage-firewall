@@ -13,9 +13,16 @@ module Log = (val Logs.src_log src : Logs.LOG)
 let transmit_ipv4 packet iface =
   Lwt.catch
     (fun () ->
-       let transport = Nat_packet.to_cstruct packet in
        Lwt.catch
-         (fun () -> iface#writev Ethif_wire.IPv4 transport)
+         (fun () ->
+            (* iface#writev Mirage_protocols.Ethernet.(`IPv4) transport) *)
+            iface#writev `IPv4 (fun b ->
+                let b' = Cstruct.concat @@ Nat_packet.to_cstruct packet in
+                let s = Cstruct.len b in
+                Cstruct.blit b' 0 b 0 s;
+                s
+              )
+         )
          (fun ex ->
             Log.warn (fun f -> f "Failed to write packet to %a: %s"
                          Ipaddr.V4.pp iface#other_ip
