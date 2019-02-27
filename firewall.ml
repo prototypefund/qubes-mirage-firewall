@@ -18,7 +18,7 @@ let transmit_ipv4 packet iface =
             (* iface#writev Mirage_protocols.Ethernet.(`IPv4) transport) *)
             iface#writev `IPv4 (fun b ->
                 let b' = Cstruct.concat @@ Nat_packet.to_cstruct packet in
-                let s = Cstruct.len b in
+                let s = Cstruct.len b' in
                 Cstruct.blit b' 0 b 0 s;
                 s
               )
