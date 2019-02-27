@@ -34,7 +34,7 @@ class client_iface eth ~gateway_ip ~client_ip client_mac : client_link = object
   method other_ip = client_ip
   method writev proto fillfn =
     FrameQ.send queue (fun () ->
-        writev eth client_mac `IPv4 fillfn
+        writev eth client_mac proto fillfn
     )
 end
 
