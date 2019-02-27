@@ -9,7 +9,7 @@ module Eth = Ethernet.Make(Netif)
 let src = Logs.Src.create "uplink" ~doc:"Network connection to NetVM"
 module Log = (val Logs.src_log src : Logs.LOG)
 
-module Make(Clock : Mirage_clock_lwt.MCLOCK) = struct
+module Make = struct
   module Arp = Arp.Make(Eth)(OS.Time)
 
   type t = {
@@ -27,7 +27,6 @@ module Make(Clock : Mirage_clock_lwt.MCLOCK) = struct
     method writev ethertype fillfn =
       FrameQ.send queue (fun () ->
         mac >>= fun dst ->
-        let eth_hdr = eth_header ethertype ~src:(Eth.mac eth) ~dst in
         Eth.write eth dst ethertype fillfn >|= or_raise "Write to uplink" Eth.pp_error
       )
   end
@@ -57,7 +56,7 @@ module Make(Clock : Mirage_clock_lwt.MCLOCK) = struct
 
   let interface t = t.interface
 
-  let connect ~clock config =
+  let connect config =
     let ip = config.Dao.uplink_our_ip in
     Netif.connect "0" >>= fun net ->
     Eth.connect net >>= fun eth ->

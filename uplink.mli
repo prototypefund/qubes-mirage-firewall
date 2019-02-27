@@ -5,10 +5,10 @@
 
 open Fw_utils
 
-module Make(Clock : Mirage_clock_lwt.MCLOCK) : sig
+module Make : sig
   type t
 
-  val connect : clock:Clock.t -> Dao.network_config -> t Lwt.t
+  val connect : Dao.network_config -> t Lwt.t
   (** Connect to our NetVM (gateway). *)
 
   val interface : t -> interface
